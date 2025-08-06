@@ -16,7 +16,7 @@ if not os.path.exists(config_path):
         json.dump(default_config, f, ensure_ascii=False, indent=4)
     print('已创建 config.json 配置文件')
 
-# 使用 'r+' 模式读写文本文件，并在写入前清空文件内容
+# 使用 'r+' 模式读写文本文件，写入前清空内容
 with open(config_path, 'r+', encoding = 'utf-8') as file:
     try:
         settings = json.load(file)
@@ -41,7 +41,6 @@ with open(config_path, 'r+', encoding = 'utf-8') as file:
             print('The config.json was written.')
 
     except (json.decoder.JSONDecodeError, KeyError) as e:
-        print(f'发生异常：{e}')
 
         # 如果文件内容无效，重新加载并初始化 settings
         settings = {
@@ -128,4 +127,4 @@ while True:
     else:
         print('无效输入')
 
-# Textbook PDF Explorer v1.1
+
