@@ -20,7 +20,7 @@ def down_books(query_string):
     while True:
         if 'https://basic.smartedu.cn/tchMaterial/detail?contentType=assets_document&contentId=' in query_string:
 
-            # 解析查询教材URL
+            # 解析URL
             params = parse_qs(query_string)
 
             # 提取 contentId 的值
@@ -38,7 +38,7 @@ def down_books(query_string):
             if len(query_strings) > 1:
                 query_strings[-1] = query_strings[-1].strip(", ")
             try:
-                query_strings.remove('')  # 写的什么鬼...
+                query_strings.remove('')  # 什么鬼...
             except ValueError:
                 pass
             for item in query_strings:
@@ -115,6 +115,3 @@ def down_books(query_string):
 
 if __name__ == '__main__':
     down_books(input('请输入教材码/教材URL：'))
-# down_books("['b10989ae-52a4-4b32-ad3f-0e8867744635', '82919224-5b94-461f-9dd0-84b3c3e1a01a', 'b319a84d-10f1-4ba0-8530-9a459f978eff', '04a1fb1f-56b2-423b-91d0-22786c474490', '660e00ae-3219-4460-b505-b436f1bde772', '8260ffe3-5065-4f32-bdc3-dd048f75ff7e']")
-# 2025-07-12
-# smartedu.cn Textbook PDF Downloader v1.0
