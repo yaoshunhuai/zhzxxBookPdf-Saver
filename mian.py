@@ -4,10 +4,33 @@ import os
 import down
 import search
 
+# 检查config.json
+config_path = f'{os.getcwd()}\\config.json'
+if not os.path.exists(config_path):
+    # 文件不存在，创建
+    default_config = {
+        "update": 0,
+        "json_files": []
+    }
+    with open(config_path, 'w', encoding='utf-8') as f:
+        json.dump(default_config, f, ensure_ascii=False, indent=4)
+    print('已创建 config.json 配置文件')
+
 # 使用 'r+' 模式读写文本文件，并在写入前清空文件内容
-with open(f'{os.getcwd()}\\config.json', 'r+', encoding = 'utf-8') as file:
+with open(config_path, 'r+', encoding = 'utf-8') as file:
     try:
         settings = json.load(file)
+
+        # 确保必要的字段存在
+        if 'update' not in settings:
+            settings['update'] = 0
+        if 'json_files' not in settings:
+            settings['json_files'] = []
+        
+        # 更新文件内容
+        file.seek(0)
+        json.dump(settings, file, ensure_ascii=False, indent=4)
+        file.truncate()
 
         if settings.get('update', 0) == 1:
             print('skip initialization update.')
@@ -21,7 +44,10 @@ with open(f'{os.getcwd()}\\config.json', 'r+', encoding = 'utf-8') as file:
         print(f'发生异常：{e}')
 
         # 如果文件内容无效，重新加载并初始化 settings
-        settings = {}
+        settings = {
+            "update": 0,
+            "json_files": []
+        }
         search.update_books_data()
         print('The config.json was rewritten.')
 

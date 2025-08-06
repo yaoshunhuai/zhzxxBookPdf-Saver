@@ -33,14 +33,8 @@ def update_books_data():
 
     settings_path = os.path.join(os.getcwd(), 'config.json')
     if os.path.exists(settings_path):
-        try:
-            with open(settings_path, 'r', encoding = 'utf-8') as file:
-                try:
-                    existing_data = json.load(file)
-                except json.JSONDecodeError:
-                    existing_data = {}
-        except FileNotFoundError:
-            existing_data = {}
+        with open(settings_path, 'r', encoding = 'utf-8') as file:
+            existing_data = json.load(file)
 
         # 在 update 后插入
         existing_data["json_files"] = web_jsons
@@ -96,7 +90,7 @@ def update_books_data():
                 if "global_title" in item and "zh-CN" in item["global_title"]:
                     cleaned_item["global_title"] = {"zh-CN": item["global_title"]["zh-CN"]}
 
-                # 保留提供方信息
+                # 保留出版社信息
                 if "provider_list" in item:
                     cleaned_item["provider_list"] = item["provider_list"]
 
@@ -104,7 +98,7 @@ def update_books_data():
                 if "tag_list" in item:
                     cleaned_item["tag_list"] = item["tag_list"]
 
-                # 保留下载相关字段
+                # 保留下载相关
                 if "ti_items" in item:
                     cleaned_item["ti_items"] = item["ti_items"]
 
@@ -118,13 +112,38 @@ def update_books_data():
 
             print(f'✅ 已优化: {json_file}')
 
-            header_x_nd_auth = input('输入引导配置header的内容:')
+        header_x_nd_auth = input('输入引导配置header的内容:')
 
-            with open('headers.json', 'w', encoding = 'utf-8') as settings:
-                json.dump({"x-nd-auth": header_x_nd_auth}, settings, ensure_ascii = False, indent = 4)
+        # 读取现有，如果存在
+        headers_file_path = 'headers.json'
+        if os.path.exists(headers_file_path):
+            try:
+                with open(headers_file_path, 'r', encoding='utf-8') as f:
+                    headers_data = json.load(f)
+            except (json.JSONDecodeError, FileNotFoundError):
+                headers_data = {}
+        else:
+            headers_data = {}
+        
+        # 更新x-nd-auth
+        headers_data["x-nd-auth"] = header_x_nd_auth
+        
+        # 写入更新
+        with open(headers_file_path, 'w', encoding='utf-8') as f:
+            json.dump(headers_data, f, ensure_ascii=False, indent=4)
 
-            # 显式设置 update 字段
-            existing_data["update"] = 1
+    # 保存设置
+    if os.path.exists(settings_path):
+        # 重新读取文件
+        with open(settings_path, 'r', encoding='utf-8') as file:
+            existing_data = json.load(file)
+        
+        # 设置 update 字段
+        existing_data["update"] = 1
+
+        # 写入更新
+        with open(settings_path, 'w', encoding='utf-8') as file:
+            json.dump(existing_data, file, ensure_ascii=False, indent=4)
 
 
 def books_search(keyword, mode):
@@ -147,7 +166,7 @@ def books_search(keyword, mode):
                 title = item["global_title"]["zh-CN"]
                 provider_name = ""
 
-                # 处理提供方名称显示逻辑
+                # 处理出版社名称显示逻辑
                 if "provider_list" in item and isinstance(item["provider_list"], list) and len(
                         item["provider_list"]) > 0:
                     first_provider = item["provider_list"][0]
@@ -203,15 +222,15 @@ def books_search(keyword, mode):
         os.system('pause')
         return
 
-    # 展示带编号和提供方名称的过滤结果
+    # 展示带编号和出版社名称的过滤结果
     print('\n匹配到以下结果：')
     for idx, title_info in enumerate(filtered_titles, start = 1):
         print(f'{idx}. {title_info['title']} {title_info['provider']}')
 
-    # 添加提供方模糊匹配检索功能
+    # 添加出版社模糊匹配检索功能
     provider_search = input('\n是否根据教材版本筛选？(输入准确版本关键词，按Enter跳过): ').strip()
     if provider_search.upper() != '' and provider_search:
-        # 根据提供方关键词进行模糊匹配筛选
+        # 根据出版社关键词进行模糊匹配筛选
         provider_filtered_titles = [t for t in filtered_titles if provider_search.lower() in t['provider'].lower()]
         if not provider_filtered_titles:
             print('🧐未找到匹配的版本')
@@ -248,7 +267,7 @@ def books_search(keyword, mode):
 
         if selected_ids:
             print('\n你选择的 ID 列表是：')
-            # 格式化输出每个 ID 及其对应的标题和提供方
+            # 格式化输出每个 ID 及其对应的标题和出版社
             for idx, sid in enumerate(selected_ids, start = 1):
                 matched = next((item for item in filtered_titles if item["id"] == sid), None)
                 if matched:
