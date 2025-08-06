@@ -1,1 +1,5 @@
 /.idea
+mian.spec
+/build
+/dist
+*.spec
