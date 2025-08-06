@@ -14,6 +14,7 @@
 ### 设置headers
 
 (可以使用 `get_hearders.py`(已打包在 [release](https://github.com/yaoshunhuai/SmartEdu-downloader/releases/)) 登陆网页自动完成, 手动粘贴)
+(源码运行时,请把Edge的WebDriver可执行文件放入运行路径同级目录下)
 
 * 访问 `https://basic.smartedu.cn/tchMaterial` 并登录，进入教材页面，随便选取一本教材，进入教材页面。
 * 按下`F12`，在弹出的开发人员工具栏中，选择`网络`（如图）

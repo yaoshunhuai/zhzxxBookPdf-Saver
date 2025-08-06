@@ -3,3 +3,4 @@ mian.spec
 /build
 /dist
 *.spec
+*.exe

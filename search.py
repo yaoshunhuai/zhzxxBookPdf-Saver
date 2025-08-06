@@ -114,14 +114,31 @@ def update_books_data():
 
         # 读取现有，如果存在
         headers_file_path = 'headers.json'
+        # 默认内容
+        default_headers = {
+            'accept': '*/*',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6,zh-TW;q=0.5',
+            'cache-control': 'no-cache',
+            'pragma': 'no-cache',
+            'priority': 'u=1, i',
+            'sec-ch-ua': '"Not;A=Brand";v="99", "Microsoft Edge";v="139", "Chromium";v="139"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'cross-site',
+            'x-nd-auth': ''
+        }
+        # 读取文件
         if os.path.exists(headers_file_path):
             try:
                 with open(headers_file_path, 'r', encoding='utf-8') as f:
                     headers_data = json.load(f)
             except (json.JSONDecodeError, FileNotFoundError):
-                headers_data = {}
+                headers_data = default_headers.copy()
         else:
-            headers_data = {}
+            headers_data = default_headers.copy()
+
         
         # 更新x-nd-auth
         headers_data["x-nd-auth"] = header_x_nd_auth

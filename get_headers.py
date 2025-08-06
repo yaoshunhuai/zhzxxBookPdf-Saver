@@ -1,27 +1,29 @@
 import os
 import time
 
-
 from seleniumwire import webdriver
 
+
 def get_request_headers():
-    os.system(f'set driver_path="{os.getcwd()}"')
+    # 设置临时环境变量,防止selenium-manager找不到webdriver
+    os.environ['PATH'] = os.environ.get("PATH") + ';' + os.getcwd()
+    print(os.getenv('PATH'))
 
-    """
-    服网上几种设置WebDriver路径都没用, 还得自己探索下, 设置临时环境变量解决了
-    翻翻 Python312\Lib\site-packages\selenium\webdriver\common\driver_finder.py 看到"driver_path"就试试没想到成功了
-    """
-
-    if input('是否需要添加证书(推荐,减少ssl安全问题|需要管理员权限,请使用管理员权限运行):(Y/n)').lower() == 'y':
+    # 添加证书
+    if input('是否需要添加证书(推荐,减少ssl安全问题 | 需要管理员权限,请使用管理员权限运行):(Y/n)').lower() == 'y':
         os.system(f'certutil -addstore root {os.getcwd()}\ca.crt')
 
+    # 创建driver
     driver = webdriver.Edge()
 
+    # 登陆
     driver.get('https://auth.smartedu.cn/uias/login')
 
+    # 判断
     while True:
         currentPageUrl = driver.current_url
         # print(f"当前页面的url是：{currentPageUrl}")
+        time.sleep(1)
         if currentPageUrl == 'https://www.smartedu.cn/': # 登陆成功后跳转,进行检测
             print('登录成功')
             break
@@ -51,6 +53,9 @@ if __name__ == '__main__':
     auth = get_request_headers()
     if auth:
         print(f'获取到的认证信息: \n{auth}')
+        os.system(f'set cmd_auth={auth}')
+        os.system('echo %cmd_auth% | clip')
+        os.system('echo 认证信息已复制到剪贴板')
         os.system('pause')
     else:
         print('未能获取到认证信息')
