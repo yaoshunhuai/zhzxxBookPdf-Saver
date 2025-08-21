@@ -2,6 +2,7 @@ import os
 import time
 
 import seleniumwire.utils
+
 from seleniumwire import webdriver
 
 
@@ -13,7 +14,7 @@ def get_request_headers():
     # 添加证书
     if input('是否需要添加证书(推荐,减少ssl安全问题 | 需要管理员权限,请使用管理员权限运行):(Y/n)').lower() == 'y':
         seleniumwire.utils.extract_cert()
-        os.system(f'certutil -addstore root {os.getcwd()}\ca.crt')
+        os.system(f'certutil -addstore root .\ca.crt')
 
     # 创建driver
     driver = webdriver.Edge()

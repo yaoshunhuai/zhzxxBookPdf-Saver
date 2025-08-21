@@ -74,7 +74,7 @@ while True:
                      '信息科技'][int(xue_ke) - 1]
                     search_content = f'^.*义务教育.*{xue_ke_name}.*{nian_ji_chs}'
                     # print(f'正在搜索：{search_content}')
-                    search.books_search(search_content, 1)
+                    search.books_search(search_content, '1')
                 else:
                     print('无效输入')
                     os.system('cls')
@@ -93,7 +93,7 @@ while True:
                                    '德语', '法语'][int(xue_ke) - 1]
                     search_content = f'^.*义务教育.*{xue_ke_name}.*{nian_ji_chs}.*$'
                     # print(f'正在搜索：{search_content}')
-                    search.books_search(search_content, 1)
+                    search.books_search(search_content, '1')
                 else:
                     print('无效输入')
                     # os.system('cls')
@@ -110,7 +110,7 @@ while True:
                                '体育与健康', '西班牙语', '德语', '法语'][int(xue_ke) - 1]
                 search_content = f'普通高中.*{xue_ke_name}'
                 # print(f'正在搜索：{search_content}')
-                search.books_search(search_content, 1)
+                search.books_search(search_content, '1')
             else:
                 print('无效输入')
                 # os.system('cls')

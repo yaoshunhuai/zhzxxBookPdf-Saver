@@ -30,18 +30,18 @@ def update_books_data():
         print(f'✅ {url}\n ┗━{json_name} downloaded.\n')
         web_jsons.append(json_name)
 
-
     settings_path = os.path.join(os.getcwd(), 'config.json')
     if os.path.exists(settings_path):
-        with open(settings_path, 'r', encoding = 'utf-8') as file:
+        with open(settings_path, 'r', encoding='utf-8') as file:
             existing_data = json.load(file)
 
-        # 在 update 后插入
+        # 更新 json_files 和 update 字段
         existing_data["json_files"] = web_jsons
+        existing_data["update"] = 1
 
         # 写入更新后的数据
-        with open(settings_path, 'w', encoding = 'utf-8') as file:
-            json.dump(existing_data, file, ensure_ascii = False, indent = 4)
+        with open(settings_path, 'w', encoding='utf-8') as file:
+            json.dump(existing_data, file, ensure_ascii=False, indent=4)
         """
         优化books_data目录下JSON文件，保留必要
         """
@@ -50,7 +50,7 @@ def update_books_data():
 
         # 检查配置文件获取JSON文件列表
 
-        with open('config.json', 'r', encoding = 'utf-8') as settings:
+        with open('config.json', 'r', encoding='utf-8') as settings:
             try:
                 config_data = json.load(settings)
                 json_files = config_data.get("json_files", [])
@@ -69,7 +69,7 @@ def update_books_data():
             print(f'正在处理: {json_file}')
 
             # 读取
-            with open(file_path, 'r', encoding = 'utf-8') as f:
+            with open(file_path, 'r', encoding='utf-8') as f:
                 try:
                     data = json.load(f)
                 except json.JSONDecodeError:
@@ -105,8 +105,8 @@ def update_books_data():
                     cleaned_data.append(cleaned_item)
 
             # 保存清理后的数据
-            with open(file_path, 'w', encoding = 'utf-8') as f:
-                json.dump(cleaned_data, f, ensure_ascii = False, indent = 4)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(cleaned_data, f, ensure_ascii=False, indent=4)
 
             print(f'✅ 已优化: {json_file}')
 
@@ -139,10 +139,9 @@ def update_books_data():
         else:
             headers_data = default_headers.copy()
 
-        
         # 更新x-nd-auth
         headers_data["x-nd-auth"] = header_x_nd_auth
-        
+
         # 写入更新
         with open(headers_file_path, 'w', encoding='utf-8') as f:
             json.dump(headers_data, f, ensure_ascii=False, indent=4)
@@ -152,7 +151,7 @@ def update_books_data():
         # 重新读取文件
         with open(settings_path, 'r', encoding='utf-8') as file:
             existing_data = json.load(file)
-        
+
         # 设置 update 字段
         existing_data["update"] = 1
 
@@ -164,7 +163,7 @@ def update_books_data():
 def books_search(keyword, mode):
     # JSON 文件所在目录
     json_dir = r'.\books_data'
-    with open('config.json', 'r', encoding = 'utf-8') as settings:
+    with open('config.json', 'r', encoding='utf-8') as settings:
         json_files = json.load(settings)["json_files"]
 
     all_titles = []
@@ -173,7 +172,7 @@ def books_search(keyword, mode):
     for json_file in json_files:
         file_path = os.path.join(json_dir, json_file)
 
-        with open(file_path, 'r', encoding = 'utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         for item in data:
@@ -181,23 +180,22 @@ def books_search(keyword, mode):
                 title = item["global_title"]["zh-CN"]
                 provider_name = ""
 
-                # 出版社名称显示
-                if "provider_list" in item and isinstance(item["provider_list"], list) and len(
-                        item["provider_list"]) > 0:
-                    first_provider = item["provider_list"][0]
-                    if isinstance(first_provider, dict) and "name" in first_provider:
-                        if first_provider["name"] == "智慧中小学":
-                            if "label" in first_provider and isinstance(first_provider["label"], dict) and "zxx" in \
-                                    first_provider["label"]:
-                                provider_name = f'(zxx)'
-                            else:
-                                provider_name = '(智慧中小学)'
-                        else:
-                            provider_name = f'({first_provider["name"]})'
+                # 出版社名称展示
+                # if item.get("provider_list"):
+                #     first_provider = item["provider_list"][0]
+                #     if isinstance(first_provider, dict) and "name" in first_provider:
+                #         if first_provider["name"] == "智慧中小学":
+                #             if "label" in first_provider and isinstance(first_provider["label"], dict) and "zxx" in \
+                #                     first_provider["label"]:
+                #                 provider_name = '(zxx)'
+                #             else:
+                #                 provider_name = '(智慧中小学)'
+                #         else:
+                #             provider_name = f'({first_provider["name"]})'
 
                 # 优先显示 tag_dimension_id=zxxbb 的 tag_name
                 tag_name = ""
-                if "tag_list" in item and isinstance(item["tag_list"], list):
+                if item.get("tag_list"):
                     for tag in item["tag_list"]:
                         if isinstance(tag, dict) and "tag_dimension_id" in tag and tag["tag_dimension_id"] == "zxxbb":
                             tag_name = tag["tag_name"]
@@ -211,12 +209,10 @@ def books_search(keyword, mode):
                     "provider": provider_name
                 })
 
-
-
-    if mode == 0: # 模糊匹配
+    if mode == '0':  # 模糊匹配
         print('自由搜索(未完工')
-        filtered_titles = []
-    elif mode == 1: # 正则匹配
+        filtered_titles = [t for t in all_titles if keyword.lower() in t["title"].lower()]
+    elif mode == '1':  # 正则匹配
 
         try:
             relaxed_pattern = re.compile(rf'.*{keyword}.*', re.IGNORECASE | re.UNICODE)
@@ -224,23 +220,21 @@ def books_search(keyword, mode):
 
         except re.error:
             print('正则表达式无效，请检查输入格式')
-            os.system('pause')
-            return
-
+            return None
     else:
         print('未知的 mode 模式')
         os.system('pause')
-        return
+        return None
 
     if not filtered_titles:
         print('未找到匹配的结果！')
         os.system('pause')
-        return
+        return None
 
     # 带编号和出版社结果
     print('\n匹配到以下结果：')
-    for idx, title_info in enumerate(filtered_titles, start = 1):
-        print(f'{idx}. {title_info['title']} {title_info['provider']}')
+    for idx, title_info in enumerate(filtered_titles, start=1):
+        print(f'{idx}. {title_info["title"]} {title_info["provider"]}')
 
     # 出版社检索
     provider_search = input('\n是否根据教材版本筛选？(输入准确版本关键词，按Enter跳过): ').strip()
@@ -249,12 +243,12 @@ def books_search(keyword, mode):
         provider_filtered_titles = [t for t in filtered_titles if provider_search.lower() in t['provider'].lower()]
         if not provider_filtered_titles:
             print('🧐未找到匹配的版本')
-            os.system('pause')
-            return
+            return None
+
         filtered_titles = provider_filtered_titles
         print(f'\n根据"{provider_search}"模糊匹配筛选后的结果：')
-        for idx, title_info in enumerate(filtered_titles, start = 1):
-            print(f'{idx}. {title_info['title']} {title_info['provider']}')
+        for idx, title_info in enumerate(filtered_titles, start=1):
+            print(f'{idx}. {title_info["title"]} {title_info["provider"]}')
 
     # 批量选择
     try:
@@ -283,7 +277,7 @@ def books_search(keyword, mode):
         if selected_ids:
             print('\n你选择的 ID 列表是：')
             # 输出每个 ID 及其对应的书名和出版社
-            for idx, sid in enumerate(selected_ids, start = 1):
+            for idx, sid in enumerate(selected_ids, start=1):
                 matched = next((item for item in filtered_titles if item["id"] == sid), None)
                 if matched:
                     title = matched["title"]
@@ -305,3 +299,9 @@ def books_search(keyword, mode):
     except ValueError:
         print('请输入有效的编号或范围，如：1 3 5 或 2-4')
         os.system('pause')
+
+
+if __name__ == '__main__':
+    books_search(input(
+        '义务教育阶段搜索 -> 义务教育教科书·科目年级 \n义务教育阶段五四学制搜索 -> 义务教育教科书（五•四学制）·科目年级 \n普通高中阶段搜索 -> 普通高中教科书·科目 \n请输入要搜索的书名(科目+年级)：'),
+                 '0')
